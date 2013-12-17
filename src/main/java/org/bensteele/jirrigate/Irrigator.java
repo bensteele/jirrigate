@@ -47,10 +47,14 @@ import org.joda.time.format.DateTimeFormatter;
 public class Irrigator {
 
   private static final String VERSION = "1.0";
+  private static final String LICENSE_HEADER = "Jirrigate v" + VERSION
+      + "  Copyright (C) 2013  Ben Steele\n" + "This program comes with ABSOLUTELY NO WARRANTY;\n"
+      + "This is free software, and you are welcome to redistribute it\n"
+      + "under certain conditions; type 'show license' for details.\n";
   private static final Logger LOG = Logger.getRootLogger();
 
   public static void main(String[] args) throws IOException, ConfigurationException {
-    System.out.println("jirrigate v" + VERSION + "\n");
+    System.out.println(LICENSE_HEADER);
     Properties config = parseConfigurationFile(args);
     Irrigator i = new Irrigator(config);
     try {

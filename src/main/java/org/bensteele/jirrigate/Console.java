@@ -242,6 +242,10 @@ public class Console {
       printControllerZones(input);
     }
 
+    else if (input.matches("show license")) {
+      printLicense();
+    }
+
     else if (input.matches("show version")) {
       printVersion();
     }
@@ -269,6 +273,22 @@ public class Console {
     else {
       printHelpMenu();
     }
+  }
+
+  private void printLicense() {
+    String gnuV3License = "Jirrigate - A Java based irrigation control system.\n"
+        + "Copyright (C) 2013  Ben Steele\n" + "https://github.com/bensteele/jirrigate\n\n"
+        + "This program is free software: you can redistribute it and/or modify\n"
+        + "it under the terms of the GNU General Public License as published by\n"
+        + "the Free Software Foundation, either version 3 of the License, or\n"
+        + "(at your option) any later version.\n" + "\n"
+        + "This program is distributed in the hope that it will be useful,\n"
+        + "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+        + "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+        + "GNU General Public License for more details.\n" + "\n"
+        + "You should have received a copy of the GNU General Public License\n"
+        + "along with this program.  If not, see [http://www.gnu.org/licenses/].";
+    System.out.println(gnuV3License);
   }
 
   private void startAllIrrigation() {
@@ -314,6 +334,7 @@ public class Console {
     // Add irrigator specific commands to the auto-complete
     commands.add("stop irrigation all");
     commands.add("start irrigation all");
+    commands.add("show license");
     commands.add("show version");
 
     reader.addCompleter(new StringsCompleter(commands));
