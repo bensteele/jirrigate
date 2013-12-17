@@ -6,15 +6,16 @@ to make intelligent decisions on whether or not to water your garden.
 
 Features
 --------
-Multiple controller support (at the same time)
-Multiple weather station support (at the same time)
-Custom scheduling times
-Weather threshold supporesion including:
+Multiple controller support (at the same time)<p>
+Multiple weather station support (at the same time)<p>
+Custom scheduling times<p>
+Interactive shell to provide real-time control and information<p>
+Weather threshold supporesion including:<p>
  - x # days to look ahead for chance of rain
  - x # days to look back for previous rain
  - wind speed
- - max/min temperatures
-Interactive shell to provide real-time control and information
+ - max/min temperatures<p>
+<p>
 
 Currently supporting the following controllers:
 -----------------------------------------------
@@ -28,6 +29,68 @@ WeatherUnderground Personal Weather Station (PWS) - http://www.wunderground.com/
 To run jirrigate:
 -----------------
 java -jar jirrigate-1.0-jar-with-dependencies.jar --config /path/to/jirrigate.config
+
+Example:
+--------
+<pre>
+$ java -jar code/misc-workspace/jirrigation/target/jirrigate-1.0-jar-with-dependencies.jar --config jirrigate.config
+jirrigate v1.0
+
+Processing configuration file...
+Done!
+jirrigate> show controller EtherRain8 Garage status
+Controller               Status              Currently Irrigating     Active    # Irrigations  Next Irrigation Due  
+EtherRain8 Garage        Device is ready     false                    true      9              17/12/2013 23:00   
+
+jirrigate> show weatherstation Roof status 
+Station: Roof
+Record: Last Updated on December 17, 6:05 PM CST
+Current Temp (C): 27.3
+Max Temp (C): 27.3
+Min Temp (C): 27.3
+Current Temp (F): 81.1
+Max Temp (F): 81.1
+Min Temp (F): 81.1
+Avg 7-day Temp (C): 27.3
+Avg 7-day Temp (F): 81.1
+Today's Rainfall (mm): 0.0
+Today's Rainfall (in): 0.0
+Last 7-day Rainfall (mm): 0.0
+Last 7-day Rainfall (in): 0.0
+Humidity (%): 20.0
+Current Wind (kph): 7.2
+Current Wind (mph): 4.5
+PoP 1-day (%): 0
+PoP 3-day (%): 0
+PoP 7-day (%): 50
+
+jirrigate> help
+Available commands are:
+
+activate controller EtherRain8 Garage
+activate weatherstation Roof
+deactivate controller EtherRain8 Garage
+deactivate weatherstation Roof
+show controller EtherRain8 Garage info
+show controller EtherRain8 Garage results last <x>
+show controller EtherRain8 Garage status
+show controller EtherRain8 Garage zones
+show controller all info
+show controller all status
+show version
+show weatherstation Roof info
+show weatherstation Roof status
+start irrigation all
+stop irrigation all
+test controller EtherRain8 Garage zone Back Garden (central) duration <seconds> 
+test controller EtherRain8 Garage zone Back Garden (garden bed) duration <seconds> 
+test controller EtherRain8 Garage zone Back Garden (south) duration <seconds> 
+test controller EtherRain8 Garage zone Front Garden (central) duration <seconds> 
+test controller EtherRain8 Garage zone Front Garden (east) duration <seconds> 
+test controller EtherRain8 Garage zone Front Garden (west) duration <seconds> 
+test controller EtherRain8 Garage zone Pagola duration <seconds> 
+
+</pre>
 
 Configuration:
 --------------
