@@ -33,36 +33,58 @@ java -jar jirrigate-1.0-jar-with-dependencies.jar --config /path/to/jirrigate.co
 Example:
 --------
 <pre>
-$ java -jar code/misc-workspace/jirrigation/target/jirrigate-1.0-jar-with-dependencies.jar --config jirrigate.config
-jirrigate v1.0
+$ java -jar jirrigate-1.0-jar-with-dependencies.jar --config jirrigate.config
+Jirrigate v1.0
+Copyright (C) 2013  Ben Steele
+This program comes with ABSOLUTELY NO WARRANTY;
+This is free software, and you are welcome to redistribute it
+under certain conditions; type 'show license' for details.
 
 Processing configuration file...
 Done!
-jirrigate> show controller EtherRain8 Garage status
-Controller               Status              Currently Irrigating     Active    # Irrigations  Next Irrigation Due  
-EtherRain8 Garage        Device is ready     false                    true      9              17/12/2013 23:00   
+jirrigate> show controller all info
+Controller               Type                IP                  Port      Username       Password       # Zones
+Garage                   ETHERRAIN8          10.0.0.1            80        admin          pass           7
 
-jirrigate> show weatherstation Roof status 
+jirrigate> show controller Garage status
+Controller               Status              Currently Irrigating     Active    # Irrigations  Next Irrigation Due  
+Garage                   Device is ready     false                    true      9              17/12/2013 23:00   
+
+jirrigate> show controller Garage zones
+Name                          Id    Duration
+Front Garden (central)        1     10m
+Front Garden (east)           2     8m
+Front Garden (west)           3     10m
+Back Garden (central)         4     10m
+Back Garden (south)           5     10m
+Back Garden (garden bed)      6     10m
+Pagola                        7     6m
+
+jirrigate> show weatherstation Roof info
+Station                  Type           Active    # Records   Oldest Record       Newest Record
+Roof                     WUNDERGROUND   true      74          17/12/2013 14:35    18/12/2013 09:05
+
+jirrigate> show weatherstation Roof status
 Station: Roof
-Record: Last Updated on December 17, 6:05 PM CST
-Current Temp (C): 27.3
-Max Temp (C): 27.3
-Min Temp (C): 27.3
-Current Temp (F): 81.1
-Max Temp (F): 81.1
-Min Temp (F): 81.1
-Avg 7-day Temp (C): 27.3
-Avg 7-day Temp (F): 81.1
+Record: Last Updated on December 18, 10:05 AM CST
+Current Temp (C): 35.2
+Max Temp (C): 35.2
+Min Temp (C): 11.9
+Current Temp (F): 95.4
+Max Temp (F): 95.4
+Min Temp (F): 53.4
+Avg 7-day Temp (C): 17.16
+Avg 7-day Temp (F): 62.88
 Today's Rainfall (mm): 0.0
 Today's Rainfall (in): 0.0
 Last 7-day Rainfall (mm): 0.0
 Last 7-day Rainfall (in): 0.0
-Humidity (%): 20.0
-Current Wind (kph): 7.2
-Current Wind (mph): 4.5
+Humidity (%): 15.0
+Current Wind (kph): 6.1
+Current Wind (mph): 3.8
 PoP 1-day (%): 0
-PoP 3-day (%): 0
-PoP 7-day (%): 50
+PoP 3-day (%): 50
+PoP 7-day (%): 70
 
 jirrigate> help
 Available commands are:
@@ -71,25 +93,47 @@ activate controller EtherRain8 Garage
 activate weatherstation Roof
 deactivate controller EtherRain8 Garage
 deactivate weatherstation Roof
-show controller EtherRain8 Garage info
-show controller EtherRain8 Garage results last <x>
-show controller EtherRain8 Garage status
-show controller EtherRain8 Garage zones
+show controller Garage info
+show controller Garage results last <x>
+show controller Garage status
+show controller Garage zones
 show controller all info
 show controller all status
+show license
 show version
 show weatherstation Roof info
 show weatherstation Roof status
 start irrigation all
 stop irrigation all
-test controller EtherRain8 Garage zone Back Garden (central) duration <seconds> 
-test controller EtherRain8 Garage zone Back Garden (garden bed) duration <seconds> 
-test controller EtherRain8 Garage zone Back Garden (south) duration <seconds> 
-test controller EtherRain8 Garage zone Front Garden (central) duration <seconds> 
-test controller EtherRain8 Garage zone Front Garden (east) duration <seconds> 
-test controller EtherRain8 Garage zone Front Garden (west) duration <seconds> 
-test controller EtherRain8 Garage zone Pagola duration <seconds> 
+test controller Garage zone Back Garden (central) duration <seconds> 
+test controller Garage zone Back Garden (garden bed) duration <seconds> 
+test controller Garage zone Back Garden (south) duration <seconds> 
+test controller Garage zone Front Garden (central) duration <seconds> 
+test controller Garage zone Front Garden (east) duration <seconds> 
+test controller Garage zone Front Garden (west) duration <seconds> 
+test controller Garage zone Pagola duration <seconds> 
 
+LOG OUTPUT EXAMPLES:
+--------------------
+2013-12-17 14:54:08,590 INFO - Irrigator v1.0 started
+2013-12-17 14:54:08,811 INFO - Next irrigation due at 17/12/2013 23:00
+2013-12-17 23:00:10,110 INFO - It's time to irrigate!
+2013-12-17 23:00:10,111 INFO - Threshold exceeded: next 7 days PoP 50% greater than threshold of 40%
+2013-12-17 23:00:10,111 INFO - Irrigation cancelled due to threshold being exceeded
+
+
+2013-12-17 23:16:33,498 INFO - Garage starting irrigation request:
+Zone(s): (Front Garden (central),10m) (Front Garden (east),8m) (Front Garden (west),10m) (Back Garden (central),10m) (Back Garden (south),10m) (Back Garden (garden bed),10m) (Pagola,6m)
+Total duration: 64m
+
+2013-12-18 00:21:28,528 INFO - Irrigation Result:
+Start: 17/12/2013 23:16
+End: 18/12/2013 00:21
+Duration: 64m
+Zones: Back Garden (south),Front Garden (east),Back Garden (garden bed),Pagola,Front Garden (west),Front Garden (central),Back Garden (central),
+Result: SUCCESS
+Command Sent: http://10.0.0.1:80/result.cgi?xi=0:10:8:10:10:10:10:6:0
+Message: INFO: Irrigation completed with no issues
 </pre>
 
 Configuration:
@@ -137,6 +181,3 @@ The configuration file can contain the following fields, see sample.config for a
 <i>weather_threshold_wind_speed</i> - Current wind speed, accepts kph/mph.<optional><p>
 <i>weather_threshold_min_temp</i> - Current temperature low cut off, accepts C/F.<optional><p>
 <i>weather_threshold_max_temp</i> - Current temperature high cut off, accepts C/F.<optional><p>
-<p>
-<p>   
-<b>Problems, bugs and feature requests to:</b> Ben Steele (ben at bensteele.org)
