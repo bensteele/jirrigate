@@ -10,7 +10,7 @@ Multiple controller support (at the same time)<p>
 Multiple weather station support (at the same time)<p>
 Custom scheduling times<p>
 Interactive shell to provide real-time control and information<p>
-Weather threshold supporesion including:<p>
+Weather threshold suppression including:<p>
  - x # days to look ahead for chance of rain
  - x # days to look back for previous rain
  - wind speed
