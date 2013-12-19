@@ -13,13 +13,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import jline.internal.Log;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -208,7 +209,8 @@ public abstract class Controller {
 
       return response;
 
-    } catch (ConnectTimeoutException e) {
+    } catch (Exception e) {
+      Log.error(controllerName + " timed out trying to execute URL: " + url);
       return new ArrayList<String>();
     } finally {
       httpclient.close();

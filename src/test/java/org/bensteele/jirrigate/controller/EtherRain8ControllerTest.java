@@ -7,6 +7,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -73,6 +74,10 @@ public class EtherRain8ControllerTest {
 
   @After
   public void tearDown() throws Exception {
+    File log = new File("jirrigate.log");
+    if (log.exists()) {
+      log.delete();
+    }
   }
 
   @Test

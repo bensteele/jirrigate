@@ -47,7 +47,7 @@ public class IrrigatorTest extends TestCase {
     if (config.exists()) {
       config.delete();
     }
-    File log = new File(System.getProperty("user.dir") + File.pathSeparator + "jirrigate.log");
+    File log = new File("jirrigate.log");
     if (log.exists()) {
       log.delete();
     }

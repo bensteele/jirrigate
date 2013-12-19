@@ -2,9 +2,11 @@ package org.bensteele.jirrigate.controller.zone;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.bensteele.jirrigate.controller.EtherRain8Controller;
+import org.junit.After;
 import org.junit.Test;
 
 /**
@@ -13,6 +15,14 @@ import org.junit.Test;
  * @author Ben Steele (ben@bensteele.org)
  */
 public class EtherRain8ZoneTest {
+
+  @After
+  public void tearDown() throws Exception {
+    File log = new File("jirrigate.log");
+    if (log.exists()) {
+      log.delete();
+    }
+  }
 
   @Test(expected = IllegalArgumentException.class)
   public void testIncorrectZoneDurationConfigurationEtherRain() throws IOException {

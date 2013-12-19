@@ -7,6 +7,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.http.client.ClientProtocolException;
@@ -52,6 +53,10 @@ public class WeatherUndergroundTest {
 
   @After
   public void tearDown() throws Exception {
+    File log = new File("jirrigate.log");
+    if (log.exists()) {
+      log.delete();
+    }
   }
 
   private static WeatherUndergroundStation station;

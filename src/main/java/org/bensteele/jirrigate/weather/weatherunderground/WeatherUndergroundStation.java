@@ -9,13 +9,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
+import jline.internal.Log;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -441,8 +442,8 @@ public class WeatherUndergroundStation implements WeatherStation {
    *           If something goes wrong with the request.
    */
   private String sendHttpGet(String url) throws ClientProtocolException, IOException {
-    // Set the timeout to 5 seconds.
-    final int HTTP_TIMEOUT = 5000;
+    // Set the timeout to 10 seconds.
+    final int HTTP_TIMEOUT = 10000;
     CloseableHttpClient httpclient = HttpClients
         .custom()
         .setDefaultRequestConfig(
@@ -472,7 +473,9 @@ public class WeatherUndergroundStation implements WeatherStation {
 
       return responseBody;
 
-    } catch (ConnectTimeoutException e) {
+    } catch (Exception e) {
+      Log.error(name
+          + " timed out trying to fetch data from Weather Underground; affected URL was: " + url);
       return "";
     } finally {
       httpclient.close();
