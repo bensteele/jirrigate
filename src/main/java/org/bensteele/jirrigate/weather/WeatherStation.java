@@ -25,13 +25,13 @@ public interface WeatherStation {
 
   public double getCurrentTemperatureFahrenheit();
 
-  public double getMaxTemperatureCelcius();
+  public double getTodaysMaxTemperatureCelcius();
 
-  public double getMaxTemperatureFahrenheit();
+  public double getTodaysMaxTemperatureFahrenheit();
 
-  public double getMinTemperatureCelcius();
+  public double getTodaysMinTemperatureCelcius();
 
-  public double getMinTemperatureFahrenheit();
+  public double getTodaysMinTemperatureFahrenheit();
 
   public double getLastXDaysAvgTemperatureCelcius(int days);
 

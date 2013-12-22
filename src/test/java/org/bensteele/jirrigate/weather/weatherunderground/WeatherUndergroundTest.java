@@ -587,25 +587,25 @@ public class WeatherUndergroundTest {
   @Test
   public void getMaxTemperatureCelciusTest() throws ClientProtocolException, IOException {
     assertFalse(station.getResponses().isEmpty());
-    assertTrue(station.getMaxTemperatureCelcius() == 25.0);
+    assertTrue(station.getTodaysMaxTemperatureCelcius() == 25.0);
   }
 
   @Test
   public void getMaxTemperatureFahrenheitTest() throws ClientProtocolException, IOException {
     assertFalse(station.getResponses().isEmpty());
-    assertTrue(station.getMaxTemperatureFahrenheit() == 77.5);
+    assertTrue(station.getTodaysMaxTemperatureFahrenheit() == 77.5);
   }
 
   @Test
   public void getMinTemperatureCelciusTest() throws ClientProtocolException, IOException {
     assertFalse(station.getResponses().isEmpty());
-    assertTrue(station.getMinTemperatureCelcius() == 25.0);
+    assertTrue(station.getTodaysMinTemperatureCelcius() == 25.0);
   }
 
   @Test
   public void getMinTemperatureFahrenheitTest() throws ClientProtocolException, IOException {
     assertFalse(station.getResponses().isEmpty());
-    assertTrue(station.getMinTemperatureFahrenheit() == 77.5);
+    assertTrue(station.getTodaysMinTemperatureFahrenheit() == 77.5);
   }
 
   @Test

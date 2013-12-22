@@ -311,44 +311,60 @@ public class WeatherUndergroundStation implements WeatherStation {
   }
 
   @Override
-  public double getMaxTemperatureCelcius() {
+  public double getTodaysMaxTemperatureCelcius() {
     double maxTemp = -1000.0;
+    DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMM yyyy");
+    LocalDate today = new LocalDate();
     for (WeatherUndergroundResponse r : responses) {
-      if (r.getCurrent_observation().getTemp_c().doubleValue() > maxTemp) {
-        maxTemp = r.getCurrent_observation().getTemp_c().doubleValue();
+      if (r.getCurrent_observation().getObservation_time_rfc822().contains(fmt.print(today))) {
+        if (r.getCurrent_observation().getTemp_c().doubleValue() > maxTemp) {
+          maxTemp = r.getCurrent_observation().getTemp_c().doubleValue();
+        }
       }
     }
     return maxTemp;
   }
 
   @Override
-  public double getMaxTemperatureFahrenheit() {
+  public double getTodaysMaxTemperatureFahrenheit() {
     double maxTemp = -1000.0;
+    DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMM yyyy");
+    LocalDate today = new LocalDate();
     for (WeatherUndergroundResponse r : responses) {
-      if (r.getCurrent_observation().getTemp_f().doubleValue() > maxTemp) {
-        maxTemp = r.getCurrent_observation().getTemp_f().doubleValue();
+      if (r.getCurrent_observation().getObservation_time_rfc822().contains(fmt.print(today))) {
+        if (r.getCurrent_observation().getTemp_f().doubleValue() > maxTemp) {
+          maxTemp = r.getCurrent_observation().getTemp_f().doubleValue();
+        }
       }
     }
     return maxTemp;
   }
 
   @Override
-  public double getMinTemperatureCelcius() {
+  public double getTodaysMinTemperatureCelcius() {
     double minTemp = 1000.0;
+    DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMM yyyy");
+    LocalDate today = new LocalDate();
     for (WeatherUndergroundResponse r : responses) {
-      if (r.getCurrent_observation().getTemp_c().doubleValue() < minTemp) {
-        minTemp = r.getCurrent_observation().getTemp_c().doubleValue();
+      if (r.getCurrent_observation().getObservation_time_rfc822().contains(fmt.print(today))) {
+        if (r.getCurrent_observation().getTemp_c().doubleValue() < minTemp) {
+          minTemp = r.getCurrent_observation().getTemp_c().doubleValue();
+        }
       }
     }
     return minTemp;
   }
 
   @Override
-  public double getMinTemperatureFahrenheit() {
+  public double getTodaysMinTemperatureFahrenheit() {
     double minTemp = 1000.0;
+    DateTimeFormatter fmt = DateTimeFormat.forPattern("dd MMM yyyy");
+    LocalDate today = new LocalDate();
     for (WeatherUndergroundResponse r : responses) {
-      if (r.getCurrent_observation().getTemp_f().doubleValue() < minTemp) {
-        minTemp = r.getCurrent_observation().getTemp_f().doubleValue();
+      if (r.getCurrent_observation().getObservation_time_rfc822().contains(fmt.print(today))) {
+        if (r.getCurrent_observation().getTemp_f().doubleValue() < minTemp) {
+          minTemp = r.getCurrent_observation().getTemp_f().doubleValue();
+        }
       }
     }
     return minTemp;
