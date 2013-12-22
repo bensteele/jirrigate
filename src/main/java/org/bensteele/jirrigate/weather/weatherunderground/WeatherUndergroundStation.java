@@ -211,8 +211,8 @@ public class WeatherUndergroundStation implements WeatherStation {
       }
       if (count > 0) {
         daysFound++;
+        totalTemp += (dayTemp / count);
       }
-      totalTemp += (dayTemp / count);
       today = today.minusDays(1);
     }
 
@@ -248,8 +248,8 @@ public class WeatherUndergroundStation implements WeatherStation {
       }
       if (count > 0) {
         daysFound++;
+        totalTemp += (dayTemp / count);
       }
-      totalTemp += (dayTemp / count);
       today = today.minusDays(1);
     }
 
