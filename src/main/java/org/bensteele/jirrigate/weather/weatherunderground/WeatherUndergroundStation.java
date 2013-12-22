@@ -213,7 +213,7 @@ public class WeatherUndergroundStation implements WeatherStation {
         daysFound++;
       }
       totalTemp += (dayTemp / count);
-      today.minusDays(1);
+      today = today.minusDays(1);
     }
 
     // Incase we don't have as many results as we are asked to go back we cap it at the days we can
@@ -250,7 +250,7 @@ public class WeatherUndergroundStation implements WeatherStation {
         daysFound++;
       }
       totalTemp += (dayTemp / count);
-      today.minusDays(1);
+      today = today.minusDays(1);
     }
 
     // Incase we don't have as many results as we are asked to go back we cap it at the days we can
@@ -276,7 +276,7 @@ public class WeatherUndergroundStation implements WeatherStation {
     for (WeatherUndergroundResponse r : responses) {
       if (r.getCurrent_observation().getObservation_time_rfc822().contains(fmt.print(today))) {
         rainfall += Double.parseDouble(r.getCurrent_observation().getPrecip_today_in());
-        today.minusDays(1);
+        today = today.minusDays(1);
         count++;
       }
       if (count == days) {
@@ -300,7 +300,7 @@ public class WeatherUndergroundStation implements WeatherStation {
     for (WeatherUndergroundResponse r : responses) {
       if (r.getCurrent_observation().getObservation_time_rfc822().contains(fmt.print(today))) {
         rainfall += Double.parseDouble(r.getCurrent_observation().getPrecip_today_metric());
-        today.minusDays(1);
+        today = today.minusDays(1);
         count++;
       }
       if (count == days) {
