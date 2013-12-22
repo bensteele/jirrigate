@@ -178,11 +178,11 @@ public class Console {
         System.out.println("Station: " + ws.getName());
         System.out.println("Record: " + ws.getStatus());
         System.out.println("Current Temp (C): " + ws.getCurrentTemperatureCelcius());
-        System.out.println("Max Temp (C): " + ws.getTodaysMaxTemperatureCelcius());
-        System.out.println("Min Temp (C): " + ws.getTodaysMinTemperatureCelcius());
+        System.out.println("Today's Max Temp (C): " + ws.getTodaysMaxTemperatureCelcius());
+        System.out.println("Today's Min Temp (C): " + ws.getTodaysMinTemperatureCelcius());
         System.out.println("Current Temp (F): " + ws.getCurrentTemperatureFahrenheit());
-        System.out.println("Max Temp (F): " + ws.getTodaysMaxTemperatureFahrenheit());
-        System.out.println("Min Temp (F): " + ws.getTodaysMinTemperatureFahrenheit());
+        System.out.println("Today's Max Temp (F): " + ws.getTodaysMaxTemperatureFahrenheit());
+        System.out.println("Today's Min Temp (F): " + ws.getTodaysMinTemperatureFahrenheit());
         System.out.println("Avg 7-day Temp (C): " + ws.getLastXDaysAvgTemperatureCelcius(7));
         System.out.println("Avg 7-day Temp (F): " + ws.getLastXDaysAvgTemperatureFahrenheit(7));
         System.out.println("Today's Rainfall (mm): " + ws.getTodaysRainfallMilliLitres());

@@ -695,7 +695,8 @@ public class Irrigator {
         LOG.info("Next irrigation due at " + nextIrrigationAt().toString(formatter));
       }
       try {
-        Thread.sleep(30000);
+    	// Try to irrigate once a minute.
+        Thread.sleep(60000);
       } catch (InterruptedException e) {
         System.out.println("Thread interrupted: " + e.getMessage());
         System.exit(1);
