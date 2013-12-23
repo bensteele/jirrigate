@@ -28,7 +28,10 @@ WeatherUnderground Personal Weather Station (PWS) - http://www.wunderground.com/
 
 To run jirrigate:
 -----------------
-java -jar jirrigate-1.0-jar-with-dependencies.jar --config /path/to/jirrigate.config
+Make sure you have Java 1.6 or newer installed.<p>
+Download jirrigate: https://github.com/bensteele/jirrigate/blob/master/jirrigate-1.0-jar-with-dependencies.jar<p>
+Create configuration file: (see below section "Configuration")<p>
+Run jirrigate: java -jar jirrigate-1.0-jar-with-dependencies.jar --config /path/to/jirrigate.config<p>
 
 Example:
 --------
