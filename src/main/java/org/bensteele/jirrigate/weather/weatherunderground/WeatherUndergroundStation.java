@@ -451,11 +451,9 @@ public class WeatherUndergroundStation implements WeatherStation {
   /**
    * Generic "helper" method to send a HTTP GET to a specified URL.
    * 
-   * @param url
-   *          The full URL that you wish to send this request to.
+   * @param url The full URL that you wish to send this request to.
    * @return The body of the reply line by line in a List.
-   * @throws IOException
-   *           If something goes wrong with the request.
+   * @throws IOException If something goes wrong with the request.
    */
   private String sendHttpGet(String url) throws ClientProtocolException, IOException {
     // Set the timeout to 10 seconds.
@@ -528,5 +526,59 @@ public class WeatherUndergroundStation implements WeatherStation {
   @Override
   public int getNumberOfRecords() {
     return this.responses.size();
+  }
+
+  @Override
+  public double getNextXDaysMaxTempCelcius(int days) {
+    if (forecastResponse.get() == null) {
+      return 0.0;
+    }
+    // Don't let a value that can't be supported slip through.
+    if (days > 10) {
+      days = 10;
+    }
+
+    // The forecast is delivered in periods, a period is half a day (day and night).
+    int periods = days * 2;
+
+    double maxTemp = -1000.0;
+    for (int i = 0; i < periods; i++) {
+      for (Forecastday day : forecastResponse.get().getForecast().getSimpleforecast()
+          .getForecastday()) {
+        if (day.getPeriod().intValue() == i) {
+          if (Double.parseDouble(day.getHigh().getCelsius()) > maxTemp) {
+            maxTemp = Double.parseDouble(day.getHigh().getCelsius());
+          }
+        }
+      }
+    }
+    return maxTemp;
+  }
+
+  @Override
+  public double getNextXDaysMaxTempFahrenheit(int days) {
+    if (forecastResponse.get() == null) {
+      return 0.0;
+    }
+    // Don't let a value that can't be supported slip through.
+    if (days > 10) {
+      days = 10;
+    }
+
+    // The forecast is delivered in periods, a period is half a day (day and night).
+    int periods = days * 2;
+
+    double maxTemp = -1000.0;
+    for (int i = 0; i < periods; i++) {
+      for (Forecastday day : forecastResponse.get().getForecast().getSimpleforecast()
+          .getForecastday()) {
+        if (day.getPeriod().intValue() == i) {
+          if (Double.parseDouble(day.getHigh().getFahrenheit()) > maxTemp) {
+            maxTemp = Double.parseDouble(day.getHigh().getFahrenheit());
+          }
+        }
+      }
+    }
+    return maxTemp;
   }
 }

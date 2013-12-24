@@ -46,7 +46,7 @@ import org.joda.time.format.DateTimeFormatter;
  */
 public class Irrigator {
 
-  private static final String VERSION = "1.0";
+  private static final String VERSION = "1.1";
   private static final String LICENSE_HEADER = "Jirrigate v" + VERSION
       + "  Copyright (C) 2013  Ben Steele\n" + "This program comes with ABSOLUTELY NO WARRANTY;\n"
       + "This is free software, and you are welcome to redistribute it\n"
@@ -108,6 +108,9 @@ public class Irrigator {
   private double maxTempThresholdInCelcius = Double.MAX_VALUE;
   private double minTempThresholdInCelcius = Double.MAX_VALUE;
   private String logPath;
+  private double weatherMultiplierValue = 1.0; // Default value of no multiply.
+  private double weatherMultiplierMaxTemp = 1000.00; // Default to value that won't false positive.
+  private int weatherMultiplierDaysToLookAhead;
 
   /**
    * Creates a single instance of an Irrigator and all of its child {@link Controller} and
@@ -277,7 +280,7 @@ public class Irrigator {
    * are active.
    * 
    * @return The time and date of the next irrigation for any controller under this irrigator's
-   *         control.
+   * control.
    */
   protected DateTime nextIrrigationAt() {
     DateTime dt = new DateTime();
@@ -319,6 +322,8 @@ public class Irrigator {
     processWateringDaysConfiguration();
     // Process the days that irrigation can be performed.
     processWateringStartTimeConfiguration();
+    // Process the extreme weather multiplier factor for irrigation duration.
+    processWeatherMultiplierConfiguration();
     // Process the irrigation controllers.
     processControllerConfiguration();
   }
@@ -397,13 +402,10 @@ public class Irrigator {
    * duration values into seconds but will leave the specifics on what is and isn't valid for a
    * duration to the {@link Zone} implementation.
    * 
-   * @param c
-   *          The {@link Controller} the {@link Zone} belong to.
-   * @param controllerValue
-   *          The order in which it's processed from the configuration ie "controller3" for the
-   *          third controller.
-   * @throws ConfigurationException
-   *           If the configuration is invalid.
+   * @param c The {@link Controller} the {@link Zone} belong to.
+   * @param controllerValue The order in which it's processed from the configuration ie
+   * "controller3" for the third controller.
+   * @throws ConfigurationException If the configuration is invalid.
    */
   private void processControllerZonesConfiguration(Controller c, String controllerValue)
       throws ConfigurationException {
@@ -464,10 +466,8 @@ public class Irrigator {
    * Parse the configuration file for names of days of the week from the "watering_days" value.
    * Convert to java.util.Calendar.DAY_OF_WEEK int value and store for scheduling use.
    * 
-   * @param config
-   *          The configuration file.
-   * @throws ConfigurationException
-   *           If the configuration is invalid.
+   * @param config The configuration file.
+   * @throws ConfigurationException If the configuration is invalid.
    */
   public void processWateringDaysConfiguration() throws ConfigurationException {
     final String errorMsg = "ERROR: Could not read watering_days from configuration file";
@@ -511,10 +511,8 @@ public class Irrigator {
    * Parse the configuration file for names of days of the week from the "watering_start_time"
    * value. Expects a 24 hour ":" separated value, stores it as Joda LocalTime.
    * 
-   * @param config
-   *          The configuration file.
-   * @throws ConfigurationException
-   *           If the configuration is invalid.
+   * @param config The configuration file.
+   * @throws ConfigurationException If the configuration is invalid.
    */
   public void processWateringStartTimeConfiguration() throws ConfigurationException {
     if (config.getProperty("watering_start_time") == null) {
@@ -689,13 +687,13 @@ public class Irrigator {
       if (!isIrrigating() && timeToIrrigate()) {
         for (Controller c : controllers) {
           if (c.isActive()) {
-            c.irrigationRequest(c.generateDefaultIrrigationRequest());
+            c.irrigationRequest(c.generateDefaultIrrigationRequest(getWeatherMultiplier()));
           }
         }
         LOG.info("Next irrigation due at " + nextIrrigationAt().toString(formatter));
       }
       try {
-    	// Try to irrigate once a minute.
+        // Try to irrigate once a minute.
         Thread.sleep(60000);
       } catch (InterruptedException e) {
         System.out.println("Thread interrupted: " + e.getMessage());
@@ -774,5 +772,75 @@ public class Irrigator {
       }
     }
     return false;
+  }
+
+  public void processWeatherMultiplierConfiguration() throws ConfigurationException {
+    final String NO_WEATHER_STATION = "ERROR: cannot have weather_multiplier values without a weatherstation configured";
+    // If any of the multiplier values are configured then try and process a multiplier
+    // configuration.
+    if ((config.getProperty("weather_multiplier_value") != null)
+        || (config.getProperty("weather_multiplier_max_temp") != null)
+        || (config.getProperty("weather_multiplier_days_to_look_ahead") != null)) {
+      // Must have a weather station to look at weather values
+      if (weatherStations.isEmpty()) {
+        throw new ConfigurationException(NO_WEATHER_STATION);
+      }
+
+      // Check that ALL values have been populated for the weather multiplier.
+      try {
+        weatherMultiplierValue = Math.abs(Double.parseDouble(config
+            .getProperty("weather_multiplier_value")));
+      } catch (NumberFormatException e) {
+        throw new ConfigurationException(
+            "ERROR: must supply a valid weather_multiplier_value value");
+      }
+      try {
+        String maxTemp = config.getProperty("weather_multiplier_max_temp");
+        String delimiter = maxTemp.substring(maxTemp.length() - 1);
+        maxTempThresholdInCelcius = Double.parseDouble(maxTemp.substring(0, maxTemp.length() - 1));
+        if (delimiter.equalsIgnoreCase("F")) {
+          maxTempThresholdInCelcius = (maxTempThresholdInCelcius - 32) * (5.0 / 9.0);
+        } else if (!delimiter.equalsIgnoreCase("C")) {
+          throw new ConfigurationException(
+              "ERROR: must supply a delimiter of \"C\" or \"F\" to weather_multiplier_max_temp");
+        }
+        weatherMultiplierMaxTemp = maxTempThresholdInCelcius;
+      } catch (NumberFormatException e) {
+        throw new ConfigurationException(
+            "ERROR: must supply a valid weather_multiplier_max_temp value");
+      }
+      try {
+        weatherMultiplierDaysToLookAhead = Math.abs(Integer.parseInt(config
+            .getProperty("weather_multiplier_days_to_look_ahead")));
+      } catch (NumberFormatException e) {
+        throw new ConfigurationException(
+            "ERROR: must supply a valid weather_multiplier_days_to_look_ahead value");
+      }
+    }
+  }
+
+  public double getWeatherMultiplier() {
+    for (WeatherStation ws : weatherStations) {
+      if (ws.getNextXDaysMaxTempCelcius(weatherMultiplierDaysToLookAhead) >= weatherMultiplierMaxTemp) {
+        LOG.info("Weather multiplier of " + weatherMultiplierValue
+            + " triggered due to max temp of "
+            + ws.getNextXDaysMaxTempCelcius(weatherMultiplierDaysToLookAhead) + "C over the next "
+            + weatherMultiplierDaysToLookAhead + " days.");
+        return weatherMultiplierValue;
+      }
+    }
+    return 1.0;
+  }
+
+  public double getWeatherMultiplierMaxTemp() {
+    return this.weatherMultiplierMaxTemp;
+  }
+
+  public double getWeatherMultiplierValue() {
+    return weatherMultiplierValue;
+  }
+
+  public int getWeatherMultiplierDaysToLookAhead() {
+    return weatherMultiplierDaysToLookAhead;
   }
 }

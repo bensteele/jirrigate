@@ -172,6 +172,15 @@ public class Console {
     }
   }
 
+  private void printWeatherMultiplier(String input) {
+    System.out.println("Multiplier Value: " + irrigator.getWeatherMultiplierValue());
+    System.out.println("Multiplier Max Temp: " + irrigator.getWeatherMultiplierMaxTemp() + "C");
+    System.out.println("Multiplier Days To Look Ahead: "
+        + irrigator.getWeatherMultiplierDaysToLookAhead());
+    System.out.println("Currently Triggered?: "
+        + ((irrigator.getWeatherMultiplier() != 1.0) ? true : false));
+  }
+
   private void printWeatherStationStatus(String input) {
     for (WeatherStation ws : irrigator.getWeatherStations()) {
       if (input.toLowerCase().contains(ws.getName().toLowerCase())) {
@@ -248,6 +257,10 @@ public class Console {
 
     else if (input.matches("show version")) {
       printVersion();
+    }
+
+    else if (input.matches("show weather multiplier")) {
+      printWeatherMultiplier(input);
     }
 
     else if (input.matches("show weatherstation.*info")) {
@@ -330,6 +343,9 @@ public class Console {
       commands.add("deactivate weatherstation " + ws.getName());
       commands.add("activate weatherstation " + ws.getName());
     }
+
+    // Add weather multiplier commands to the auto-complete
+    commands.add("show weather multiplier");
 
     // Add irrigator specific commands to the auto-complete
     commands.add("stop irrigation all");

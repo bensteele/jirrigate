@@ -774,4 +774,41 @@ public class IrrigatorTest extends TestCase {
     assertTrue(i.getMaxTempThresholdInCelcius() == 26.67);
     assertTrue(i.getMinTempThresholdInCelcius() == -15.56);
   }
+
+  @Test
+  public void testWeatherMultiplierConfiguration() throws ConfigurationException, IOException {
+    Properties config = new Properties();
+    // Dummy irrigation controller 1 with 2 zones.
+    config.setProperty("controller1_name", "MY_controller1");
+    config.setProperty("controller1_ip", "172.17.8.1");
+    config.setProperty("controller1_port", "8888");
+    config.setProperty("controller1_username", "admin1");
+    config.setProperty("controller1_password", "password1");
+    config.setProperty("controller1_type", "etherrain8");
+    config.setProperty("controller1_zone1_name", "Front Garden");
+    config.setProperty("controller1_zone1_id", "1");
+    config.setProperty("controller1_zone1_duration", "30s");
+    config.setProperty("controller1_zone2_name", "Side Garden");
+    config.setProperty("controller1_zone2_id", "2");
+    config.setProperty("controller1_zone2_duration", "20M");
+
+    // Dummy weather underground personal weather station.
+    config.setProperty("weatherstation1_name", "MY_weatherstation");
+    config.setProperty("weatherstation1_type", "wunderground");
+    config.setProperty("weatherstation1_stationid", "IMOUTHAU666");
+    config.setProperty("weatherstation1_api", "abcdefgh123456");
+    // Dummy weather threshold settings.
+    config.setProperty("weather_multiplier_max_temp", "40C");
+    config.setProperty("weather_multiplier_value", "1.5");
+    config.setProperty("weather_multiplier_days_to_look_ahead", "3");
+
+    Irrigator i = new Irrigator(config);
+    i.processControllerConfiguration();
+    i.processWeatherStationConfiguration();
+    i.processWeatherMultiplierConfiguration();
+
+    assertTrue(i.getWeatherMultiplierMaxTemp() == 40);
+    assertTrue(i.getWeatherMultiplierValue() == 1.5);
+    assertTrue(i.getWeatherMultiplierDaysToLookAhead() == 3);
+  }
 }

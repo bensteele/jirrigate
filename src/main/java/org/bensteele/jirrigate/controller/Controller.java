@@ -98,6 +98,14 @@ public abstract class Controller {
     return request;
   }
 
+  public IrrigationRequest generateDefaultIrrigationRequest(double multiplier) {
+    IrrigationRequest request = new IrrigationRequest();
+    for (Zone z : zones) {
+      request.getZones().put(z, (long) (z.getDuration() * multiplier));
+    }
+    return request;
+  }
+
   public ControllerType getControllerType() {
     return this.controllerType;
   }
@@ -164,11 +172,9 @@ public abstract class Controller {
   /**
    * Generic "helper" method to send a HTTP GET to a specified URL.
    * 
-   * @param url
-   *          The full URL that you wish to send this request to.
+   * @param url The full URL that you wish to send this request to.
    * @return The body of the reply line by line in a List.
-   * @throws IOException
-   *           If something goes wrong with the request.
+   * @throws IOException If something goes wrong with the request.
    */
   protected List<String> sendHttpGet(String url) throws IOException {
     // Set the timeout to 5 seconds.
@@ -248,8 +254,7 @@ public abstract class Controller {
   /**
    * Removes {@link Zone} that have no/zero duration specified in the {@link IrrigationRequest}.
    * 
-   * @param request
-   *          The {@link IrrigationRequest} to process.
+   * @param request The {@link IrrigationRequest} to process.
    * @return A Set of {@link Zone} to be irrigated.
    */
   protected Set<Zone> stripNoIrrigationZones(IrrigationRequest request) {

@@ -378,8 +378,8 @@ public class WeatherUndergroundTest {
       + "  \"monthname_short\":\"Dec\",\r\n" + "  \"weekday_short\":\"Wed\",\r\n"
       + "  \"weekday\":\"Wednesday\",\r\n" + "  \"ampm\":\"PM\",\r\n"
       + "  \"tz_short\":\"CST\",\r\n" + "  \"tz_long\":\"Australia/Adelaide\"\r\n" + "},\r\n"
-      + "    \"period\":5,\r\n" + "    \"high\": {\r\n" + "    \"fahrenheit\":\"97\",\r\n"
-      + "    \"celsius\":\"36\"\r\n" + "    },\r\n" + "    \"low\": {\r\n"
+      + "    \"period\":5,\r\n" + "    \"high\": {\r\n" + "    \"fahrenheit\":\"104\",\r\n"
+      + "    \"celsius\":\"40\"\r\n" + "    },\r\n" + "    \"low\": {\r\n"
       + "    \"fahrenheit\":\"75\",\r\n" + "    \"celsius\":\"24\"\r\n" + "    },\r\n"
       + "    \"conditions\":\"Partly Cloudy\",\r\n" + "    \"icon\":\"partlycloudy\",\r\n"
       + "    \"icon_url\":\"http://icons-ak.wxug.com/i/c/k/partlycloudy.gif\",\r\n"
@@ -662,6 +662,18 @@ public class WeatherUndergroundTest {
       IOException {
     assertTrue(station.getForecastResponse() != null);
     assertTrue(station.getNextXDaysPercentageOfPrecipitation(7) == 40);
+  }
+
+  @Test
+  public void getNextXDaysMaxTempCelcius() throws ClientProtocolException, IOException {
+    assertTrue(station.getForecastResponse() != null);
+    assertTrue(station.getNextXDaysMaxTempCelcius(7) == 40);
+  }
+
+  @Test
+  public void getNextXDaysMaxTempFahrenheit() throws ClientProtocolException, IOException {
+    assertTrue(station.getForecastResponse() != null);
+    assertTrue(station.getNextXDaysMaxTempFahrenheit(7) == 104);
   }
 
   @Test

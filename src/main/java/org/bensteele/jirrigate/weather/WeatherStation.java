@@ -66,4 +66,8 @@ public interface WeatherStation {
   public DateTime getNewestRecordTime();
 
   public int getNumberOfRecords();
+
+  public double getNextXDaysMaxTempCelcius(int days);
+
+  public double getNextXDaysMaxTempFahrenheit(int days);
 }
