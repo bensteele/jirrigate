@@ -356,18 +356,16 @@ public class Console {
     reader.addCompleter(new StringsCompleter(commands));
 
     String line;
-    PrintWriter out = new PrintWriter(reader.getOutput());
+    PrintWriter out = new PrintWriter(reader.getOutput(), true);
 
     while ((line = reader.readLine()) != null) {
 
       if (line.equalsIgnoreCase("quit") || line.equalsIgnoreCase("exit")) {
         out.println("Goodbye!");
-        out.flush();
         System.exit(0);
       }
 
       processConsoleInput(line);
-      out.flush();
     }
   }
 

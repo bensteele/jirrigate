@@ -55,6 +55,8 @@ public class Irrigator {
 
   public static void main(String[] args) throws IOException, ConfigurationException {
     System.out.println(LICENSE_HEADER);
+    Thread t = new Thread(new TelnetServer(32666));
+    t.start();
     Properties config = parseConfigurationFile(args);
     Irrigator i = new Irrigator(config);
     try {
