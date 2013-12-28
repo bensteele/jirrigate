@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import jline.console.ConsoleReader;
+import jline.console.completer.Completer;
 import jline.console.completer.StringsCompleter;
 
 import org.bensteele.jirrigate.controller.Controller;
@@ -25,9 +26,13 @@ public class Console {
 
   private final Irrigator irrigator;
   private final Set<String> commands = new TreeSet<String>();
+  private final ConsoleReader reader;
 
-  public Console(Irrigator irrigator) {
+  private Completer completer = new StringsCompleter();
+
+  public Console(Irrigator irrigator) throws IOException {
     this.irrigator = irrigator;
+    this.reader = new ConsoleReader();
   }
 
   private void activateController(String input) {
@@ -227,6 +232,62 @@ public class Console {
       deactivateWeatherStation(input);
     }
 
+    else if (input.matches("reload controller configuration")) {
+      try {
+        irrigator.reloadConfigurationFromFile();
+        irrigator.processControllerConfiguration();
+      } catch (Exception e) {
+        System.out.println("Error re-loading configuration due to: " + e.getMessage());
+      }
+      addAutoCompleteCommands(reader);
+      System.out.println("Configuration has been reloaded.");
+    }
+
+    else if (input.matches("reload watering day/time configuration")) {
+      try {
+        irrigator.reloadConfigurationFromFile();
+        irrigator.processWateringDaysConfiguration();
+        irrigator.processWateringStartTimeConfiguration();
+      } catch (Exception e) {
+        System.out.println("Error re-loading configuration due to: " + e.getMessage());
+      }
+      addAutoCompleteCommands(reader);
+      System.out.println("Configuration has been reloaded.");
+    }
+
+    else if (input.matches("reload weatherstation configuration")) {
+      try {
+        irrigator.reloadConfigurationFromFile();
+        irrigator.processWeatherStationConfiguration();
+      } catch (Exception e) {
+        System.out.println("Error re-loading configuration due to: " + e.getMessage());
+      }
+      addAutoCompleteCommands(reader);
+      System.out.println("Configuration has been reloaded.");
+    }
+
+    else if (input.matches("reload weather multiplier configuration")) {
+      try {
+        irrigator.reloadConfigurationFromFile();
+        irrigator.processWeatherMultiplierConfiguration();
+      } catch (Exception e) {
+        System.out.println("Error re-loading configuration due to: " + e.getMessage());
+      }
+      addAutoCompleteCommands(reader);
+      System.out.println("Configuration has been reloaded.");
+    }
+
+    else if (input.matches("reload weather threshold configuration")) {
+      try {
+        irrigator.reloadConfigurationFromFile();
+        irrigator.processWeatherThresholdConfiguration();
+      } catch (Exception e) {
+        System.out.println("Error re-loading configuration due to: " + e.getMessage());
+      }
+      addAutoCompleteCommands(reader);
+      System.out.println("Configuration has been reloaded.");
+    }
+
     else if (input.matches("show controller all info")) {
       printControllerInfoAll(input);
     }
@@ -312,10 +373,10 @@ public class Console {
     }
   }
 
-  public void startConsole() throws IOException {
-    ConsoleReader reader = new ConsoleReader();
-    reader.setPrompt("jirrigate> ");
-
+  private void addAutoCompleteCommands(ConsoleReader reader) {
+    // Clear any old auto-complete commands.
+    commands.clear();
+    reader.removeCompleter(completer);
     // Add the controllers to the auto-complete
     for (Controller c : irrigator.getControllers()) {
       commands.add("show controller " + c.getName() + " info");
@@ -348,12 +409,24 @@ public class Console {
     commands.add("show weather multiplier");
 
     // Add irrigator specific commands to the auto-complete
+    commands.add("reload controller configuration");
+    commands.add("reload watering day/time configuration");
+    commands.add("reload weatherstation configuration");
+    commands.add("reload weather multiplier configuration");
+    commands.add("reload weather threshold configuration");
     commands.add("stop irrigation all");
     commands.add("start irrigation all");
     commands.add("show license");
     commands.add("show version");
 
-    reader.addCompleter(new StringsCompleter(commands));
+    completer = new StringsCompleter(commands);
+    reader.addCompleter(completer);
+  }
+
+  public void startConsole() throws IOException {
+    reader.setPrompt("jirrigate> ");
+
+    addAutoCompleteCommands(reader);
 
     String line;
     PrintWriter out = new PrintWriter(reader.getOutput(), true);

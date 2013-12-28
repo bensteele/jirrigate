@@ -2,6 +2,7 @@ package org.bensteele.jirrigate;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -52,6 +53,7 @@ public class Irrigator {
       + "This is free software, and you are welcome to redistribute it\n"
       + "under certain conditions; type 'show license' for details.\n";
   private static final Logger LOG = Logger.getRootLogger();
+  private static String configFilePath;
 
   public static void main(String[] args) throws IOException, ConfigurationException {
     System.out.println(LICENSE_HEADER);
@@ -86,11 +88,15 @@ public class Irrigator {
       System.exit(1);
     }
 
-    String configFilePath = (String) options.valueOf("config");
+    configFilePath = (String) options.valueOf("config");
     Properties config = new Properties();
     config.load(new FileInputStream(configFilePath));
 
     return config;
+  }
+
+  protected void reloadConfigurationFromFile() throws FileNotFoundException, IOException {
+    config.load(new FileInputStream(configFilePath));
   }
 
   private final ExecutorService requestExecutor = Executors.newSingleThreadExecutor();
@@ -331,6 +337,7 @@ public class Irrigator {
   }
 
   public void processControllerConfiguration() throws ConfigurationException, IOException {
+    controllers.clear();
     for (int i = 1; i < Integer.MAX_VALUE; i++) {
       String controllerValue = "controller" + i;
       String controllerName = config.getProperty(controllerValue + "_name");
@@ -537,6 +544,7 @@ public class Irrigator {
   }
 
   public void processWeatherStationConfiguration() throws ConfigurationException {
+    weatherStations.clear();
     for (int i = 1; i < Integer.MAX_VALUE; i++) {
       String weatherStationValue = "weatherstation" + i;
       String weatherStationName = config.getProperty(weatherStationValue + "_name");
