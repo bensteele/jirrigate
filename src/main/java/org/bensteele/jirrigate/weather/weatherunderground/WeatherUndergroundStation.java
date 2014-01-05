@@ -77,7 +77,7 @@ public class WeatherUndergroundStation implements WeatherStation {
     requestExecutor.execute(new Runnable() {
       @Override
       public void run() {
-        final int SLEEP_15_MINUTES_IN_MS = (1000 * 60) * 15;
+        final int SLEEP_30_MINUTES_IN_MS = (1000 * 60) * 30;
         while (true) {
           try {
             if (isActive()) {
@@ -95,7 +95,7 @@ public class WeatherUndergroundStation implements WeatherStation {
                 }
               }
             }
-            Thread.sleep(SLEEP_15_MINUTES_IN_MS);
+            Thread.sleep(SLEEP_30_MINUTES_IN_MS);
           } catch (ClientProtocolException e) {
             e.printStackTrace();
           } catch (IOException e) {
@@ -451,9 +451,11 @@ public class WeatherUndergroundStation implements WeatherStation {
   /**
    * Generic "helper" method to send a HTTP GET to a specified URL.
    * 
-   * @param url The full URL that you wish to send this request to.
+   * @param url
+   *          The full URL that you wish to send this request to.
    * @return The body of the reply line by line in a List.
-   * @throws IOException If something goes wrong with the request.
+   * @throws IOException
+   *           If something goes wrong with the request.
    */
   private String sendHttpGet(String url) throws ClientProtocolException, IOException {
     // Set the timeout to 10 seconds.
