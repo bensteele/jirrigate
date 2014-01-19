@@ -2,7 +2,6 @@ package org.bensteele.jirrigate;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -10,6 +9,7 @@ import jline.console.ConsoleReader;
 import jline.console.completer.Completer;
 import jline.console.completer.StringsCompleter;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.bensteele.jirrigate.controller.Controller;
 import org.bensteele.jirrigate.controller.IrrigationResult;
 import org.bensteele.jirrigate.controller.zone.Zone;
@@ -150,11 +150,14 @@ public class Console {
       if (input.toLowerCase().contains(c.getName().toLowerCase())) {
         String[] amountString = input.split("results last ");
         int duration = Integer.parseInt(amountString[1]);
-        Iterator<IrrigationResult> results = c.getIrrigationResults().iterator();
+        IrrigationResult[] results = (IrrigationResult[]) c.getIrrigationResults().toArray();
+        ArrayUtils.reverse(results);
         for (int i = 0; i < duration; i++) {
-          if (results.hasNext()) {
-            System.out.println("\n" + results.next());
+          // Don't let the array go out of bounds.
+          if (i == results.length) {
+            break;
           }
+          System.out.println("\n" + results[i]);
         }
       }
     }
