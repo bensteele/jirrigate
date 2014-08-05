@@ -15,6 +15,7 @@ Weather threshold suppression including:<p>
  - x # days to look back for previous rain
  - wind speed
  - max/min temperatures<p>
+<p>
 Extreme temperature irrigation multiplier:<p>
  - Temperature to trigger at
  - X # of days to look ahead for trigger
