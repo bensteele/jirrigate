@@ -42,14 +42,14 @@ import org.joda.time.format.DateTimeFormatter;
  * The main class for the jirrigate application.
  * <p>
  * Controls one or more {@link Controller} and (optionally) one or more {@link WeatherStation}.
- * 
+ *
  * @author Ben Steele (ben@bensteele.org)
  */
 public class Irrigator {
 
   private static final String VERSION = "1.1";
   private static final String LICENSE_HEADER = "Jirrigate v" + VERSION
-      + "  Copyright (C) 2013  Ben Steele\n" + "This program comes with ABSOLUTELY NO WARRANTY;\n"
+      + "  Copyright (C) 2014  Ben Steele\n" + "This program comes with ABSOLUTELY NO WARRANTY;\n"
       + "This is free software, and you are welcome to redistribute it\n"
       + "under certain conditions; type 'show license' for details.\n";
   private static final Logger LOG = Logger.getRootLogger();
@@ -57,39 +57,40 @@ public class Irrigator {
 
   public static void main(String[] args) throws IOException, ConfigurationException {
     System.out.println(LICENSE_HEADER);
-    Thread t = new Thread(new TelnetServer(32666));
-    t.start();
-    Properties config = parseConfigurationFile(args);
-    Irrigator i = new Irrigator(config);
+    // TODO fix telnet implementation
+    // final Thread t = new Thread(new TelnetServer(32666));
+    // t.start();
+    final Properties config = parseConfigurationFile(args);
+    final Irrigator i = new Irrigator(config);
     try {
       System.out.println("Processing configuration file...");
       i.processConfiguration();
       System.out.println("Done!");
-    } catch (ConfigurationException e) {
+    } catch (final ConfigurationException e) {
       System.out.println(e.getMessage());
       System.exit(1);
     }
-    Console c = new Console(i);
+    final Console c = new Console(i);
     c.startConsole();
   }
 
   protected static Properties parseConfigurationFile(String[] args) throws IOException {
-    OptionParser parser = new OptionParser() {
+    final OptionParser parser = new OptionParser() {
       {
         accepts("config").withRequiredArg().required().ofType(String.class)
-            .describedAs("Path to the configuration file.");
+        .describedAs("Path to the configuration file.");
       }
     };
     OptionSet options = null;
     try {
       options = parser.parse(args);
-    } catch (OptionException e) {
+    } catch (final OptionException e) {
       parser.printHelpOn(System.out);
       System.exit(1);
     }
 
     configFilePath = (String) options.valueOf("config");
-    Properties config = new Properties();
+    final Properties config = new Properties();
     config.load(new FileInputStream(configFilePath));
 
     return config;
@@ -121,47 +122,54 @@ public class Irrigator {
   private int weatherMultiplierDaysToLookAhead;
 
   /**
-   * Creates a single instance of an Irrigator and all of its child {@link Controller} and
-   * {@link WeatherStation} Objects. The configuration of these Objects is derived from the
-   * configuration properties passed into the constructor and may have the following values:
-   * 
+   * Creates a single instance of an Irrigator and all of its child
+   * {@link Controller} and {@link WeatherStation} Objects. The configuration of
+   * these Objects is derived from the configuration properties passed into the
+   * constructor and may have the following values:
+   *
    * <pre>
    * X means a numeric value, generally starting at 1 and incrementing as required
    * (i.e. controller3 would indicate your third controller configuration).
-   * 
+   *
    * logging_directory - The path to the directory to write the jirrigate.log file.
-   * 
+   *
    * controllerX_name - Friendly name. <required>
    * controllerX_ip - IP address. <required>
    * controllerX_port - Port to connect to. <required>
    * controllerX_username - Login Username. <optional>
    * controllerX_password - Login Password. <optional>
    * controllerX_type - Type of this controller, i.e. EtherRain8. <required>
-   * 
+   *
    * controllerX_zoneX_name - Friendly name. <required>
    * controllerX_zoneX_id - ID of this zone on the controller. <required>
    * controllerX_zoneX_duration - How long to irrigate this zone, accepts s/m/h delimiters. <required>
-   * 
+   *
    * watering_days - Days to irrigate, i.e. monday,wednesday,saturday. <required>
    * watering_start_time - Time to start irrigation in 24-hour format i.e. 23:30 for 11:30pm. <required>
-   * 
+   *
+   * weather_watcher - Will stop an active irrigation if thresholds are exceeded, default true. Accepts true/false.<optional>
+   *
    * <WeatherStation as a whole is optional>
-   * weatherstationX_name - Friendly name. <required>
-   * weatherstationX_type - Type i.e. wunderground. <required>
-   * weatherstationX_staionid - Station specific ID i.e. AUSOUTH123 <required>
-   * weatherstationX_api - API key <required>
-   * 
+   * weatherstationX_name - Friendly name.<required>
+   * weatherstationX_type - Type i.e. wunderground.<required>
+   * weatherstationX_staionid - Station specific ID i.e. AUSOUTH123.<required>
+   * weatherstationX_api - API key.<required>
+   *
    * <Thresholds are optional and require a valid WeatherStation to be accepted>
-   * weather_threshold_rain_days_to_look_ahead - # of days in advance to use for rain thresholds<optional>
-   * weather_threshold_rain_days_to_look_back - # of days in past to use for rain thresholds<optional>
+   * weather_threshold_rain_days_to_look_ahead - # of days in advance to use for rain thresholds.<optional>
+   * weather_threshold_rain_days_to_look_back - # of days in past to use for rain thresholds.<optional>
    * weather_threshold_total_rain_amount - Total rain from weather_threshold_rain_days_to_look_ahead, accepts mm/in.<optional>
    * weather_threshold_current_rain_amount - Amount of rain from today, accepts mm/in.<optional>
-   * weather_threshold_pop - Chance of rain over the weather_threshold_rain_days_to_look_ahead period. <optional>
+   * weather_threshold_pop - Chance of rain over the weather_threshold_rain_days_to_look_ahead period.<optional>
    * weather_threshold_wind_speed - Current wind speed, accepts kph/mph.<optional>
    * weather_threshold_min_temp - Current temperature low cut off, accepts C/F.<optional>
    * weather_threshold_max_temp - Current temperature high cut off, accepts C/F.<optional>
-   * 
-   * 
+   *
+   * <Weather multiplier is optional and require a valid WeatherStation to be accepted>
+   * weather_multiplier_max_temp - Temperature to trigger the multiplier, accepts C/F.<optional>
+   * weather_multiplier_value - Amount to multiply the normal irrigation time for i.e. 1.5 for 50% extra.<optional>
+   * weather_multiplier_days_to_look_ahead - The amount of forecast days ahead to use for gathering data, accepts a whole number.<optional>
+   *
    * @param config
    *          The configuration to be loaded into the {@link Irrigator}.
    * @throws IOException
@@ -176,14 +184,14 @@ public class Irrigator {
     if (config.getProperty("logging_directory") == null) {
       logPath = System.getProperty("user.dir");
     } else {
-      File file = new File(config.getProperty("logging_directory"));
+      final File file = new File(config.getProperty("logging_directory"));
       if (!file.isDirectory()) {
         throw new ConfigurationException("ERROR: Must specify a logging_directory");
       } else {
         logPath = config.getProperty("logging_directory");
       }
     }
-    RollingFileAppender fileAppender = new RollingFileAppender(logPattern, logPath + File.separator
+    final RollingFileAppender fileAppender = new RollingFileAppender(logPattern, logPath + File.separator
         + "jirrigate.log", true);
     fileAppender.setMaxFileSize("10MB");
     fileAppender.setMaxBackupIndex(10);
@@ -195,6 +203,7 @@ public class Irrigator {
       @Override
       public void run() {
         startIrrigator();
+        startWeatherWatcher();
       }
     });
   }
@@ -204,7 +213,7 @@ public class Irrigator {
   }
 
   public Controller getController(String controllerName) {
-    for (Controller c : controllers) {
+    for (final Controller c : controllers) {
       if (c.getName().matches(controllerName)) {
         return c;
       }
@@ -261,7 +270,7 @@ public class Irrigator {
   }
 
   public WeatherStation getWeatherStation(String weatherStationName) {
-    for (WeatherStation w : weatherStations) {
+    for (final WeatherStation w : weatherStations) {
       if (w.getName().matches(weatherStationName)) {
         return w;
       }
@@ -274,7 +283,7 @@ public class Irrigator {
   }
 
   protected boolean isIrrigating() {
-    for (Controller c : controllers) {
+    for (final Controller c : controllers) {
       if (c.isIrrigating()) {
         return true;
       }
@@ -286,14 +295,14 @@ public class Irrigator {
    * Returns the time and date the next irrigation is due based on the watering_days and
    * watering_start_time. It does not take into account whether or not any of the {@link Controller}
    * are active.
-   * 
+   *
    * @return The time and date of the next irrigation for any controller under this irrigator's
    * control.
    */
   protected DateTime nextIrrigationAt() {
     DateTime dt = new DateTime();
     for (int i = 0; i < 7; i++) {
-      for (int dayOfWeek : wateringDays) {
+      for (final int dayOfWeek : wateringDays) {
         if (dayOfWeek == (dt.getDayOfWeek())) {
           // If it's the first run then we may match the same day we are currently on, in this case
           // we need to check that we don't report a time in the past. Validate that the hour and
@@ -339,8 +348,8 @@ public class Irrigator {
   public void processControllerConfiguration() throws ConfigurationException, IOException {
     controllers.clear();
     for (int i = 1; i < Integer.MAX_VALUE; i++) {
-      String controllerValue = "controller" + i;
-      String controllerName = config.getProperty(controllerValue + "_name");
+      final String controllerValue = "controller" + i;
+      final String controllerName = config.getProperty(controllerValue + "_name");
       if (controllerName == null) {
         // No more controllers to parse.
         break;
@@ -354,7 +363,7 @@ public class Irrigator {
         InetAddress ipAddress;
         try {
           ipAddress = InetAddress.getByName(config.getProperty(controllerValue + "_ip"));
-        } catch (UnknownHostException e) {
+        } catch (final UnknownHostException e) {
           throw new ConfigurationException("ERROR: Unable to parse IP address of "
               + controllerValue + "_ip");
         }
@@ -367,16 +376,16 @@ public class Irrigator {
         int port;
         try {
           port = Integer.parseInt(config.getProperty(controllerValue + "_port"));
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
           throw new ConfigurationException("ERROR: Unable to parse port of " + controllerValue
               + "_port");
         }
 
         // Username
-        String username = config.getProperty(controllerValue + "_username");
+        final String username = config.getProperty(controllerValue + "_username");
 
         // Password
-        String password = config.getProperty(controllerValue + "_password");
+        final String password = config.getProperty(controllerValue + "_password");
 
         // Instantiate controller based on controller_type value.
         if (config.getProperty(controllerValue + "_type") == null) {
@@ -384,8 +393,8 @@ public class Irrigator {
               + "_type");
         }
         Controller c = null;
-        String controllerType = config.getProperty(controllerValue + "_type");
-        for (ControllerType type : Controller.ControllerType.values()) {
+        final String controllerType = config.getProperty(controllerValue + "_type");
+        for (final ControllerType type : Controller.ControllerType.values()) {
           if (controllerType.toUpperCase().matches(type.name())) {
             if (type.name().matches("ETHERRAIN8")) {
               c = new EtherRain8Controller(controllerName, ipAddress, port, username, password, LOG);
@@ -410,7 +419,7 @@ public class Irrigator {
    * Processes the {@link Zone} configurations for a given {@link Controller}. It will convert any
    * duration values into seconds but will leave the specifics on what is and isn't valid for a
    * duration to the {@link Zone} implementation.
-   * 
+   *
    * @param c The {@link Controller} the {@link Zone} belong to.
    * @param controllerValue The order in which it's processed from the configuration ie
    * "controller3" for the third controller.
@@ -419,13 +428,13 @@ public class Irrigator {
   private void processControllerZonesConfiguration(Controller c, String controllerValue)
       throws ConfigurationException {
     for (int j = 1; j < Integer.MAX_VALUE; j++) {
-      String zone = controllerValue + "_zone" + j;
-      String zoneName = config.getProperty(zone + "_name");
+      final String zone = controllerValue + "_zone" + j;
+      final String zoneName = config.getProperty(zone + "_name");
       if (zoneName == null) {
         // No more zones to parse.
         break;
       } else {
-        String zoneId = config.getProperty(zone + "_id");
+        final String zoneId = config.getProperty(zone + "_id");
         if (zoneId == null) {
           throw new ConfigurationException("ERROR: Could not find configuration for " + zone
               + "_id");
@@ -437,19 +446,19 @@ public class Irrigator {
           if (c.getClass().equals(EtherRain8Controller.class)) {
             z = new EtherRain8Zone(c, zoneName, 0, zoneId);
           }
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
           throw new ConfigurationException(e.getMessage());
         }
 
         // Duration is an optional value expressed in [value][s|m|h] where s=seconds, m=minutes
         // and h=hours in the configuration file. This will be converted into seconds for use
         // with the controllers.
-        String zoneDuration = config.getProperty(zone + "_duration");
+        final String zoneDuration = config.getProperty(zone + "_duration");
         if (zoneDuration != null) {
           try {
-            long durationValue = Long
+            final long durationValue = Long
                 .parseLong(zoneDuration.substring(0, zoneDuration.length() - 1));
-            String durationDelimiter = zoneDuration.substring(zoneDuration.length() - 1);
+            final String durationDelimiter = zoneDuration.substring(zoneDuration.length() - 1);
             if (durationDelimiter.equalsIgnoreCase("s")) {
               z.setDuration(durationValue);
             } else if (durationDelimiter.equalsIgnoreCase("m")) {
@@ -460,10 +469,10 @@ public class Irrigator {
               throw new ConfigurationException("ERROR: Unable to parse duration of " + zone
                   + "_duration");
             }
-          } catch (NumberFormatException e) {
+          } catch (final NumberFormatException e) {
             throw new ConfigurationException("ERROR: Unable to parse duration of " + zone
                 + "_duration");
-          } catch (IllegalArgumentException e) {
+          } catch (final IllegalArgumentException e) {
             throw new ConfigurationException(e.getMessage());
           }
         }
@@ -474,7 +483,7 @@ public class Irrigator {
   /**
    * Parse the configuration file for names of days of the week from the "watering_days" value.
    * Convert to java.util.Calendar.DAY_OF_WEEK int value and store for scheduling use.
-   * 
+   *
    * @param config The configuration file.
    * @throws ConfigurationException If the configuration is invalid.
    */
@@ -485,7 +494,7 @@ public class Irrigator {
       throw new ConfigurationException(errorMsg);
     }
 
-    String[] wateringDaysArg = config.getProperty("watering_days").split(",");
+    final String[] wateringDaysArg = config.getProperty("watering_days").split(",");
 
     for (String s : wateringDaysArg) {
       s = s.trim();
@@ -519,7 +528,7 @@ public class Irrigator {
   /**
    * Parse the configuration file for names of days of the week from the "watering_start_time"
    * value. Expects a 24 hour ":" separated value, stores it as Joda LocalTime.
-   * 
+   *
    * @param config The configuration file.
    * @throws ConfigurationException If the configuration is invalid.
    */
@@ -529,16 +538,16 @@ public class Irrigator {
           "ERROR: Could not read watering_start_time from configuration file");
     }
 
-    String startTimeString = config.getProperty("watering_start_time");
+    final String startTimeString = config.getProperty("watering_start_time");
 
     // Expect 24 hour time format ie 23:10 for 11:10PM.
-    String[] timeSplit = startTimeString.split(":");
+    final String[] timeSplit = startTimeString.split(":");
     try {
-      int hour = Integer.parseInt(timeSplit[0]);
-      int minute = Integer.parseInt(timeSplit[1]);
-      LocalTime wateringStartTime = new LocalTime(hour, minute);
+      final int hour = Integer.parseInt(timeSplit[0]);
+      final int minute = Integer.parseInt(timeSplit[1]);
+      final LocalTime wateringStartTime = new LocalTime(hour, minute);
       this.wateringStartTime = wateringStartTime;
-    } catch (NumberFormatException e) {
+    } catch (final NumberFormatException e) {
       throw new ConfigurationException("ERROR: Unable to parse watering_start_time value");
     }
   }
@@ -546,8 +555,8 @@ public class Irrigator {
   public void processWeatherStationConfiguration() throws ConfigurationException {
     weatherStations.clear();
     for (int i = 1; i < Integer.MAX_VALUE; i++) {
-      String weatherStationValue = "weatherstation" + i;
-      String weatherStationName = config.getProperty(weatherStationValue + "_name");
+      final String weatherStationValue = "weatherstation" + i;
+      final String weatherStationName = config.getProperty(weatherStationValue + "_name");
       if (weatherStationName == null) {
         // No more weather stations to parse.
         break;
@@ -558,8 +567,8 @@ public class Irrigator {
               + weatherStationValue + "_type");
         }
         WeatherStation w = null;
-        String weatherStationType = config.getProperty(weatherStationValue + "_type");
-        for (WeatherStationType type : WeatherStation.WeatherStationType.values()) {
+        final String weatherStationType = config.getProperty(weatherStationValue + "_type");
+        for (final WeatherStationType type : WeatherStation.WeatherStationType.values()) {
           if (weatherStationType.toUpperCase().matches(type.name())) {
             if (type.name().matches("WUNDERGROUND")) {
 
@@ -567,13 +576,13 @@ public class Irrigator {
                 throw new ConfigurationException("ERROR: " + "no stationid type for "
                     + weatherStationValue + "_stationid");
               }
-              String stationId = config.getProperty(weatherStationValue + "_stationid");
+              final String stationId = config.getProperty(weatherStationValue + "_stationid");
 
               if (config.getProperty(weatherStationValue + "_api") == null) {
                 throw new ConfigurationException("ERROR: " + "no api key for "
                     + weatherStationValue + "_api");
               }
-              String api = config.getProperty(weatherStationValue + "_api");
+              final String api = config.getProperty(weatherStationValue + "_api");
 
               w = new WeatherUndergroundStation(weatherStationName, api, stationId);
             }
@@ -602,8 +611,8 @@ public class Irrigator {
       }
       rainDaysToLookBack = Math.abs(Integer.parseInt(config
           .getProperty("weather_threshold_rain_days_to_look_back")));
-      String totalRain = config.getProperty("weather_threshold_total_rain_amount");
-      String delimiter = totalRain.substring(totalRain.length() - 2);
+      final String totalRain = config.getProperty("weather_threshold_total_rain_amount");
+      final String delimiter = totalRain.substring(totalRain.length() - 2);
       totalRainAmountThresholdInMilliMetres = Math.abs(Double.parseDouble(totalRain.substring(0,
           totalRain.length() - 2)));
       if (delimiter.equalsIgnoreCase("in")) {
@@ -618,8 +627,8 @@ public class Irrigator {
       if (weatherStations.isEmpty()) {
         throw new ConfigurationException(NO_WEATHER_STATION);
       }
-      String currentRain = config.getProperty("weather_threshold_current_rain_amount");
-      String delimiter = currentRain.substring(currentRain.length() - 2);
+      final String currentRain = config.getProperty("weather_threshold_current_rain_amount");
+      final String delimiter = currentRain.substring(currentRain.length() - 2);
       currentRainAmountThresholdInMilliMetres = Math.abs(Double.parseDouble(currentRain.substring(
           0, currentRain.length() - 2)));
       if (delimiter.equalsIgnoreCase("in")) {
@@ -634,8 +643,8 @@ public class Irrigator {
       if (weatherStations.isEmpty()) {
         throw new ConfigurationException(NO_WEATHER_STATION);
       }
-      String currentWind = config.getProperty("weather_threshold_wind_speed");
-      String delimiter = currentWind.substring(currentWind.length() - 3);
+      final String currentWind = config.getProperty("weather_threshold_wind_speed");
+      final String delimiter = currentWind.substring(currentWind.length() - 3);
       currentWindThresholdInKmph = Math.abs(Double.parseDouble(currentWind.substring(0,
           currentWind.length() - 3)));
       if (delimiter.equalsIgnoreCase("mph")) {
@@ -650,8 +659,8 @@ public class Irrigator {
       if (weatherStations.isEmpty()) {
         throw new ConfigurationException(NO_WEATHER_STATION);
       }
-      String maxTemp = config.getProperty("weather_threshold_max_temp");
-      String delimiter = maxTemp.substring(maxTemp.length() - 1);
+      final String maxTemp = config.getProperty("weather_threshold_max_temp");
+      final String delimiter = maxTemp.substring(maxTemp.length() - 1);
       maxTempThresholdInCelcius = Double.parseDouble(maxTemp.substring(0, maxTemp.length() - 1));
       if (delimiter.equalsIgnoreCase("F")) {
         maxTempThresholdInCelcius = (maxTempThresholdInCelcius - 32) * (5.0 / 9.0);
@@ -665,8 +674,8 @@ public class Irrigator {
       if (weatherStations.isEmpty()) {
         throw new ConfigurationException(NO_WEATHER_STATION);
       }
-      String minTemp = config.getProperty("weather_threshold_min_temp");
-      String delimiter = minTemp.substring(minTemp.length() - 1);
+      final String minTemp = config.getProperty("weather_threshold_min_temp");
+      final String delimiter = minTemp.substring(minTemp.length() - 1);
       minTempThresholdInCelcius = Double.parseDouble(minTemp.substring(0, minTemp.length() - 1));
       if (delimiter.equalsIgnoreCase("F")) {
         minTempThresholdInCelcius = (minTempThresholdInCelcius - 32) * (5.0 / 9.0);
@@ -690,12 +699,12 @@ public class Irrigator {
   }
 
   public void startIrrigator() {
-    DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm");
+    final DateTimeFormatter formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm");
     LOG.info("Irrigator v" + VERSION + " started");
     LOG.info("Next irrigation due at " + nextIrrigationAt().toString(formatter));
     while (true) {
       if (!isIrrigating() && timeToIrrigate()) {
-        for (Controller c : controllers) {
+        for (final Controller c : controllers) {
           if (c.isActive()) {
             c.irrigationRequest(c.generateDefaultIrrigationRequest(getWeatherMultiplier()));
           }
@@ -705,7 +714,7 @@ public class Irrigator {
       try {
         // Try to irrigate once a minute.
         Thread.sleep(60000);
-      } catch (InterruptedException e) {
+      } catch (final InterruptedException e) {
         System.out.println("Thread interrupted: " + e.getMessage());
         System.exit(1);
       }
@@ -713,7 +722,7 @@ public class Irrigator {
   }
 
   protected boolean thresholdsExceeded() {
-    for (WeatherStation ws : weatherStations) {
+    for (final WeatherStation ws : weatherStations) {
       if (currentRainAmountThresholdInMilliMetres <= ws.getTodaysRainfallMilliLitres()) {
         LOG.info("Threshold exceeded: today's rainfall " + ws.getTodaysRainfallMilliLitres()
             + "mm greater than threshold of " + currentRainAmountThresholdInMilliMetres + "mm");
@@ -760,12 +769,12 @@ public class Irrigator {
    * Determines whether or not it is appropriate to irrigate based on the watering_days,
    * watering_start_time and watering_threshold values in the configuration. Used by the
    * {@code #startIrrigator()} worker thread.
-   * 
+   *
    * @return true to irrigate.
    */
   protected boolean timeToIrrigate() {
-    LocalTime lt = new LocalTime();
-    for (int dayOfWeek : wateringDays) {
+    final LocalTime lt = new LocalTime();
+    for (final int dayOfWeek : wateringDays) {
       if (dayOfWeek == (lt.toDateTimeToday().getDayOfWeek())) {
         if (wateringStartTime.getHourOfDay() == lt.getHourOfDay()) {
           if (wateringStartTime.getMinuteOfHour() == lt.getMinuteOfHour()) {
@@ -800,13 +809,13 @@ public class Irrigator {
       try {
         weatherMultiplierValue = Math.abs(Double.parseDouble(config
             .getProperty("weather_multiplier_value")));
-      } catch (NumberFormatException e) {
+      } catch (final NumberFormatException e) {
         throw new ConfigurationException(
             "ERROR: must supply a valid weather_multiplier_value value");
       }
       try {
-        String maxTemp = config.getProperty("weather_multiplier_max_temp");
-        String delimiter = maxTemp.substring(maxTemp.length() - 1);
+        final String maxTemp = config.getProperty("weather_multiplier_max_temp");
+        final String delimiter = maxTemp.substring(maxTemp.length() - 1);
         maxTempThresholdInCelcius = Double.parseDouble(maxTemp.substring(0, maxTemp.length() - 1));
         if (delimiter.equalsIgnoreCase("F")) {
           maxTempThresholdInCelcius = (maxTempThresholdInCelcius - 32) * (5.0 / 9.0);
@@ -815,14 +824,14 @@ public class Irrigator {
               "ERROR: must supply a delimiter of \"C\" or \"F\" to weather_multiplier_max_temp");
         }
         weatherMultiplierMaxTemp = maxTempThresholdInCelcius;
-      } catch (NumberFormatException e) {
+      } catch (final NumberFormatException e) {
         throw new ConfigurationException(
             "ERROR: must supply a valid weather_multiplier_max_temp value");
       }
       try {
         weatherMultiplierDaysToLookAhead = Math.abs(Integer.parseInt(config
             .getProperty("weather_multiplier_days_to_look_ahead")));
-      } catch (NumberFormatException e) {
+      } catch (final NumberFormatException e) {
         throw new ConfigurationException(
             "ERROR: must supply a valid weather_multiplier_days_to_look_ahead value");
       }
@@ -830,7 +839,7 @@ public class Irrigator {
   }
 
   public double getWeatherMultiplier() {
-    for (WeatherStation ws : weatherStations) {
+    for (final WeatherStation ws : weatherStations) {
       if (ws.getNextXDaysMaxTempCelcius(weatherMultiplierDaysToLookAhead) >= weatherMultiplierMaxTemp) {
         LOG.info("Weather multiplier of " + weatherMultiplierValue
             + " triggered due to max temp of "
@@ -852,5 +861,44 @@ public class Irrigator {
 
   public int getWeatherMultiplierDaysToLookAhead() {
     return weatherMultiplierDaysToLookAhead;
+  }
+
+  private void startWeatherWatcher() {
+    final Thread purger = new WeatherWatcher();
+    purger.setName("WeatherWatcher");
+    purger.setPriority(Thread.MIN_PRIORITY);
+    purger.start();
+  }
+
+  /**
+   * Helper thread to periodically check if weather thresholds have been
+   * exceeded and if true then stop any active irrigation. Requires at least one
+   * valid valid {@link WeatherStation} to do anything.
+   *
+   */
+  private class WeatherWatcher extends Thread {
+    @Override
+    public void run() {
+      final int THREAD_SLEEP = 60000; // Check every 1 minute.
+      for (;;) {
+        try {
+          Thread.sleep(THREAD_SLEEP);
+          // No point checking if we have no weather stations.
+          if (!getWeatherStations().isEmpty()) {
+            if(thresholdsExceeded()) {
+              for(final Controller c : getControllers()) {
+                if(c.isIrrigating()) {
+                  LOG.info("Threshold exceeded, stopping active irrigation for Controller:  "
+                      + c.getName());
+                  c.stopIrrigation();
+                }
+              }
+            }
+          }
+        } catch (final Exception e) {
+          LOG.error("WeatherWatcher: " + e.getMessage());
+        }
+      }
+    }
   }
 }
