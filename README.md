@@ -1,4 +1,4 @@
-jirrigate v1.0
+jirrigate v1.1
 ==============
 
 Java based irrigation controller that ties in weather station data
@@ -16,6 +16,11 @@ Weather threshold suppression including:<p>
  - wind speed
  - max/min temperatures<p>
 <p>
+Extreme temperature irrigation multiplier:<p>
+ - Temperature to trigger at
+ - X # of days to look ahead for trigger
+ - Amount to multiply irrigation by if triggered
+<p>
 
 Currently supporting the following controllers:
 -----------------------------------------------
@@ -29,16 +34,16 @@ WeatherUnderground Personal Weather Station (PWS) - http://www.wunderground.com/
 To run jirrigate:
 -----------------
 Make sure you have Java 1.6 or newer installed.<p>
-Download jirrigate: https://github.com/bensteele/jirrigate/blob/master/jirrigate-1.0-jar-with-dependencies.jar<p>
+Download jirrigate: https://github.com/bensteele/jirrigate/blob/master/jirrigate-1.1-jar-with-dependencies.jar<p>
 Create configuration file: (see below section "Configuration")<p>
-Run jirrigate: java -jar jirrigate-1.0-jar-with-dependencies.jar --config /path/to/jirrigate.config<p>
+Run jirrigate: java -jar jirrigate-1.1-jar-with-dependencies.jar --config /path/to/jirrigate.config<p>
 
 Example:
 --------
 <pre>
-$ java -jar jirrigate-1.0-jar-with-dependencies.jar --config jirrigate.config
-Jirrigate v1.0
-Copyright (C) 2013  Ben Steele
+$ java -jar jirrigate-1.1-jar-with-dependencies.jar --config jirrigate.config
+Jirrigate v1.1
+Copyright (C) 2014  Ben Steele
 This program comes with ABSOLUTELY NO WARRANTY;
 This is free software, and you are welcome to redistribute it
 under certain conditions; type 'show license' for details.
@@ -184,3 +189,9 @@ The configuration file can contain the following fields, see sample.config for a
 <i>weather_threshold_wind_speed</i> - Current wind speed, accepts kph/mph.<optional><p>
 <i>weather_threshold_min_temp</i> - Current temperature low cut off, accepts C/F.<optional><p>
 <i>weather_threshold_max_temp</i> - Current temperature high cut off, accepts C/F.<optional><p>
+<p>
+<b>Multiplier <optional, require weather station></b>
+<p>
+<i>weather_multiplier_max_temp</i> - Temperature to trigger multiplier, accepts C/F.<optional><p>
+<i>weather_multiplier_value</i> - Amount to multiply irrigation by, ie 1.5 for 50%.<optional><p>
+<i>weather_multiplier_days_to_look_ahead</i> - Number of days to look ahead in weather forecast for trigger.<optional><p>
