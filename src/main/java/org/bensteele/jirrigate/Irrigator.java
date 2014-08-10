@@ -741,7 +741,7 @@ public class Irrigator {
       }
       if (minTempThresholdInCelcius >= ws.getCurrentTemperatureCelcius()) {
         LOG.info("Threshold exceeded: current temperature " + ws.getCurrentTemperatureCelcius()
-            + "C less than threshold of " + maxTempThresholdInCelcius + "C");
+            + "C less than threshold of " + minTempThresholdInCelcius + "C");
         return true;
       }
       if (rainDaysToLookBack > 0) {
